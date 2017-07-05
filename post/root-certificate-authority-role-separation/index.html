@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<meta name='description' content='The thing I hate the most in the world is struggling with Windows limitations. The second is being forced to do so.
+One month ago I received a company-owned laptop and it was configured via Active Directory shits, but for me it makes no sense to have a device without being the full owner (at least in an administration way, not as Stallman would like for any code that runs on his machine).'>
+
+<meta property='og:title' content='Root Certificate Authority Role Separation • Marco `wsx` Bartoli'>
+<meta property='og:description' content='The thing I hate the most in the world is struggling with Windows limitations. The second is being forced to do so.
+One month ago I received a company-owned laptop and it was configured via Active Directory shits, but for me it makes no sense to have a device without being the full owner (at least in an administration way, not as Stallman would like for any code that runs on his machine).'>
+<meta property='og:url' content='/post/root-certificate-authority-role-separation/'>
+<meta property='og:site_name' content='wsx&#39;s space'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post'><meta property='article:published_time' content='2016-11-05T00:00:00Z'/><meta property='article:modified_time' content='2016-11-05T00:00:00Z'/>
+
+<meta name="generator" content="Hugo 0.25-DEV" />
+
+  <base href='/'>
+  <title>Root Certificate Authority Role Separation • Marco `wsx` Bartoli</title>
+  <link rel='canonical' href='/post/root-certificate-authority-role-separation/'>
+  <link href='' rel='alternate' type='application/rss+xml' title='wsx&#39;s space' />
+  <link rel='icon' href='/favicon.ico'>
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Ubuntu:400,400i,700&subset=latin'>
+<link rel='stylesheet' href='/css/main.d02777fd.css'>
+
+  <link rel='stylesheet' href='/css/custom.css'>
+
+
+
+</head>
+
+
+<body class='page'>
+  <div class='site'>
+    <header id='header' class='header-container'>
+      <div class='site-header'>
+        <nav id='navmenu' aria-label='Main Menu'>
+  <ul class='main-menu'>
+    
+    <li>
+      <a href='/'>BLOG</a>
+    </li>
+    
+    <li>
+      <a href='/about'>ABOUT</a>
+    </li>
+    
+  </ul>
+</nav>
+
+        <div class='site-info'>
+          
+          <p class='site-title title'>wsx&#39;s space</p>
+          
+          <p class='site-description'>Random thoughts about security and stuff</p>
+        </div>
+      </div>
+    </header>
+
+
+<main class='main'>
+  <article lang='en' class='entry'>
+    <header class='entry-header'>
+  <div class='entry-info'>
+    <h1 class='entry-title title'>Root Certificate Authority Role Separation</h1>
+    
+  </div>
+  
+<div class='meta'>
+  <span class='posted-on'>
+    <svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+  <line x1="16" y1="2" x2="16" y2="6"/>
+  <line x1="8" y1="2" x2="8" y2="6"/>
+  <line x1="3" y1="10" x2="21" y2="10"/>
+  
+</svg>
+
+    <span class='screen-reader'>Posted on </span>
+    <time class='date' datetime='2016-11-05T00:00:00Z'>2016, Nov 5</time>
+  </span>
+  
+  <span class='byline'>
+    <svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M21,21V20c0-2.76-4-5-9-5s-9,2.24-9,5v1"/>
+  <path d="M16,6.37A4,4,0,1,1,12.63,3,4,4,0,0,1,16,6.37Z"/>
+  
+</svg>
+
+    <span class='screen-reader'> by </span>
+    Marco `wsx` Bartoli
+  </span>
+  
+</div>
+
+
+</header>
+
+    <div class='entry-content'>
+  <p>The thing I hate the most in the world is struggling with Windows limitations.
+The second is being forced to do so.</p>
+
+<p>One month ago I received a company-owned laptop and it was configured via Active Directory shits, but for me it makes no sense to have a device without being the full owner (at least in an administration way, not as Stallman would like for any code that runs on his machine).</p>
+
+<p>Then I said, &ldquo;I will try to find some oversight or strange configuration&rdquo;, and because I&rsquo;m paranoid about being controlled, I immediately had a look at the root certificates installed on the machine.</p>
+
+<p>Ta-dah! A certificate issued by the company! Of course I checked if they were performing man-in-the-middle on HTTPS&hellip; But without any positive results. Maybe it was used to trust internal domains? Neither.</p>
+
+<p>As always, after a good nap, I was reminded that within the building, the Wi-Fi is protected by a WPA-Enterprise authentication grade. Bingo! The CA was used for that. So, what is the problem?</p>
+
+<p>At first glance I was impressed by the integration of the OS in the management of certificates, but then I thought about the classic UNIX philosophy. MAKE A F***ING PROGRAM DO ONE THING WELL.</p>
+
+<p><img src="/root-certificate-authority-role-separation/1.png" alt="NetworkManager" />
+<sub><em>NetworkManager on GNU/Linux handles certificates internally for each AP.</em></sub></p>
+
+<p>Why I say that? After much research on the internet, I discovered that the role necessary to select the certificate to use it to trust an access point, is &ldquo;Server authentication&rdquo;. Which of course it is the same flag needed to trust HTTPS websites. That is cool Microsoft! I&rsquo;m serious. (No, I am not).</p>
+
+<p>I still believe in the trustworthiness of the software companies so I tried to write a nice mail to report this thing.</p>
+
+<p><img src="/root-certificate-authority-role-separation/2.png" alt="Mail1" /></p>
+
+<p>I definitely did not expect any CVE for a bug of this kind. Although it could cause security problems, it seems to have been completely ignored, as you can read in the Katie&rsquo;s reply.</p>
+
+<p><img src="/root-certificate-authority-role-separation/3.png" alt="Mail2" /></p>
+
+<p>Ok, maybe explaining the potential better I could get at least a &ldquo;we will try to verify&rdquo; ?</p>
+
+<p>Never give up! At least is what people say&hellip;</p>
+
+<p><img src="/root-certificate-authority-role-separation/4.png" alt="Mail3" /></p>
+
+<p><strong>IGNORED, GAME OVER :(</strong></p>
+
+<p><img src="/root-certificate-authority-role-separation/5.png" alt="Mail4" /></p>
+
+<p>I understand that perhaps getting many emails as &ldquo;security holes&rdquo; you have to filter out radically someone, and maybe the 90% of the emails are just crap. In any case, where should a flaw like this be reported? Maybe it&rsquo;s me that I&rsquo;m wrong, anyway they have not been able to give me the right directions as a customer. Or maybe they do not care of these things.</p>
+
+<hr />
+
+<p>I expect that kind of behavior also from other operating systems, though is more a bad design from the beginning than anything else. (I left out the fact that in Windows you can only set one IP configuration per interface instead of per AP).</p>
+
+<p>For example, on iOS, the CA of a EAP network is installed when you make your first connection to it.</p>
+
+<p>Effective? Yes.
+Simple? Yes.
+Secure? Maybe.
+Flexible? Nope.</p>
+
+<p>I want to run my security in freedom and flexibility, so I will take the operating system head of this category. Android.</p>
+
+<p><img src="/root-certificate-authority-role-separation/6.png" alt="Android1" />
+<sub><em>Android? Not a winner anyhow.</em></sub></p>
+
+<p>On Android, the CA can be installed for the EAP side separately as we expected. But we must not excite so quickly, the problem is outside that.</p>
+
+<p><img src="/root-certificate-authority-role-separation/7.png" alt="Android2" />
+<sub><em>VPN and apps should be separated.</em></sub></p>
+
+<p>Trying to install a certificate you will immediately notice two categories combined. Why? Also in this case we will not have an answer, and as you can guess, the problem will be the same as the first case. With only two different categories.</p>
+
+<p>You want to prevent someone spoofs your VPN certificate and at the same time you want to prevent someone to do a MITM having installed only trusted CA? You can&rsquo;t.</p>
+
+<hr />
+
+<p>Encryption is needed, but it must also be reachable by everyone.</p>
+
+<p>Perhaps after this little story someone will understand the importance of separating the keys verification and things will begin to change. I really hope in some fixes, being just small things.</p>
+
+<hr />
+
+<p><strong>EDIT 1/12/2016:</strong></p>
+
+<p>Google replied:</p>
+
+<blockquote>
+<p>Thanks for your report.<br />
+We&rsquo;ll take this into consideration for future Android release.<br />
+Android Security Team</p>
+</blockquote>
+
+<p><strong>EDIT 14/12/2016:</strong></p>
+
+<p>As pointed out by a friend, Microsoft did not cosidered this a bug because the correct use of X.509 is to issue a certificate with a specific domain filling the &ldquo;subjectAltName&rdquo; extension to limit the usage.</p>
+
+<p>But it still remain an issue because the certificate providers doesn&rsquo;t always use it and you cannot add an extension to the certificate without re-issuing it.</p>
+
+</div>
+
+    
+<footer class='entry-footer'>
+  
+    
+  
+    
+  
+</footer>
+
+
+  </article>
+
+  
+    
+
+  
+
+  
+    <div class='comments-container'>
+  
+</div>
+
+  
+</main>
+
+    <footer id='footer' class='footer-container'>
+      <div class='footer'>
+        <div class='social'>
+          <nav aria-label='Social Menu'>
+  <ul class='social-menu'>
+  
+    
+    <li>
+      <a href='https://github.com/wsxarcher' target='_blank' rel='noopener'>
+        <span class='screen-reader'>Open Github account in new tab</span>
+        <svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+  
+</svg>
+
+      </a>
+    </li>
+    
+  
+    
+    <li>
+      <a href='https://twitter.com/wsxarcher' target='_blank' rel='noopener'>
+        <span class='screen-reader'>Open Twitter account in new tab</span>
+        <svg class='icon' viewbox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' aria-hidden='true'>
+  
+  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+  
+</svg>
+
+      </a>
+    </li>
+    
+  
+  </ul>
+</nav>
+
+        </div>
+
+        <div class='copyright'>
+          <p>
+    
+      
+    
+  
+  &copy; 2016-2017 wsx</p>
+
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src='/js/main.af838dd5.js'></script>
+  
+    <script src='/js/custom.js'></script>
+  
+
+</body>
+
+</html>
+
