@@ -1,0 +1,59 @@
+baseURL = "/"
+title = "wsx's space"
+copyright = ""
+
+theme = "minimo"
+
+disqusShortname = ""
+googleAnalytics = ""
+Paginate = 5
+
+preserveTaxonomyNames = true
+
+[params]
+  description = "Random thoughts about security and stuff"
+  dateFormat = "2006, Jan 2"
+  copyrightOwner = "wsx"
+  copyrightStartYear = "2016"
+  favicon = "favicon.ico"
+  hideEntryNavigation = false
+  customCSS = ["css/custom.css"]
+  customJS = ["js/custom.js"]
+
+[params.seo]
+  # Title Separator: - – — · • * ⋆ | ~ « » < >
+  titleSeparator = "•"
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+[author]
+  name = "Marco `wsx` Bartoli"
+
+[author.social]
+  github = "wsxarcher"
+  twitter = "wsxarcher"
+
+[permalinks]
+  page = "/:slug/"
+
+[[menu.main]]
+  name = "BLOG"
+  weight = -70
+  identifier = "blog"
+  url = "/"
+
+[[menu.main]]
+  name = "ABOUT"
+  weight = -60
+  identifier = "about"
+  url = "/about"
+
+defaultContentLanguage = "en"
+
+[languages]
+  [languages.en]
+    lang = "en"
+    languageName = "English"
+    weight = 1
